@@ -2,6 +2,8 @@
 
 Speculative mobile-first prototype: a studio that sculpts your dog as a memorial, commissioned while they're still alive. A portfolio piece; see [DESIGN.md](DESIGN.md) for the UX rationale.
 
+**Live:** https://daverich-jpg.github.io/good-boy-atelier/ (deployed from `main` by GitHub Actions)
+
 ```bash
 npm install
 npm run dev   # http://localhost:5230
