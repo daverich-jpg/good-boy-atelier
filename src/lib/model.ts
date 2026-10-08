@@ -2,7 +2,6 @@ export type Pronoun = 'he' | 'she' | 'they'
 export type Piece = 'keychain' | 'sculpture' | 'urn'
 export type Material = 'silver' | 'bronze' | 'stone' | 'ceramic'
 export type Delivery = 'ready' | 'hold'
-export type SlotId = 'front' | 'left' | 'right' | 'top' | 'markings' | 'most'
 export type Feature = 'ears' | 'eyes' | 'muzzle' | 'head' | 'expression' | 'markings'
 export type UpdatePref = 'every' | 'approvals' | 'paused'
 export type IfPasses = 'continue' | 'pause'
@@ -16,9 +15,14 @@ export interface Likeness {
   softEyes: boolean
 }
 
-export interface Ref {
+export interface Photo {
+  id: string
   src: string // data URL, or 'demo' for the seeded illustration
   issues: string[]
+  /** Known only for the seeded demo; real photos are sorted by the sculptor, not the owner. */
+  angle?: 'front' | 'left' | 'right'
+  /** A frame pulled from the owner's video. */
+  fromVideo?: boolean
 }
 
 export interface Feedback {
@@ -46,7 +50,7 @@ export interface Commission {
   material: Material
   /** Urns only: sizes the ash chamber. Blank means "not sure"; we confirm before casting. */
   weightLb: string
-  refs: Partial<Record<SlotId, Ref>>
+  photos: Photo[]
   notes: string
   stage: number
   roundsUsed: number
@@ -76,14 +80,8 @@ export const STAGES = [
   { key: 'held', label: 'Ready for you', approval: false },
 ] as const
 
-export const SLOTS: { id: SlotId; label: string; tip: string; required: boolean }[] = [
-  { id: 'front', label: 'Face, straight on', tip: 'Get down to their eye level. Daylight from a window is best.', required: true },
-  { id: 'left', label: 'Left side', tip: 'Whole head and neck, side-on. Ears relaxed if you can.', required: true },
-  { id: 'right', label: 'Right side', tip: 'The other side. Dogs are rarely symmetrical.', required: true },
-  { id: 'top', label: 'From above', tip: 'Standing over them, looking down. Shows the shape of the head.', required: false },
-  { id: 'markings', label: 'Markings up close', tip: 'Scars, patches, a grey muzzle, a nicked ear.', required: false },
-  { id: 'most', label: 'The most them', tip: 'Any photo where they look exactly like themselves.', required: false },
-]
+/** The most photos one commission keeps; enough for any angle, small enough for browser storage. */
+export const MAX_PHOTOS = 12
 
 export const FEATURES: { id: Feature; label: string }[] = [
   { id: 'expression', label: 'Expression' },

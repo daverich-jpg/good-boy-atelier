@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Sculpture } from '../components/Sculpture'
 import { Sheet, TopBar, go } from '../components/ui'
-import { SLOTS, money, priceOf, type Delivery, type IfPasses, type UpdatePref } from '../lib/model'
+import { money, priceOf, type Delivery, type IfPasses, type UpdatePref } from '../lib/model'
 import { useStore } from '../state/store'
 
 export function Settings({ onToast }: { onToast: (m: string) => void }) {
@@ -103,15 +103,14 @@ export function Details({ onToast }: { onToast: (m: string) => void }) {
         <div className="stack-lg">
           <section className="stack">
             <h2>{c.dog.name}’s photos</h2>
-            <div className="slots">
-              {SLOTS.filter((s) => c.refs[s.id]?.src).map((s) => (
-                <figure key={s.id} className="slot filled" style={{ margin: 0, cursor: 'default' }}>
+            <div className="slots" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+              {c.photos.map((ph, i) => (
+                <figure key={ph.id} className="slot filled" style={{ margin: 0, cursor: 'default' }}>
                   <div className="thumb">
-                    {c.refs[s.id]!.src === 'demo'
-                      ? <Sculpture view={s.id === 'front' || s.id === 'right' ? s.id : 'left'} finish="fur" grey tilt softEyes backdrop plinth={false} />
-                      : <img src={c.refs[s.id]!.src} alt={`${c.dog.name}, ${s.label.toLowerCase()}`} />}
+                    {ph.src === 'demo'
+                      ? <Sculpture view={ph.angle ?? 'left'} finish="fur" grey tilt softEyes backdrop plinth={false} />
+                      : <img src={ph.src} alt={`${c.dog.name}, photo ${i + 1}`} />}
                   </div>
-                  <figcaption className="label">{s.label}</figcaption>
                 </figure>
               ))}
             </div>

@@ -170,7 +170,7 @@ export function Home({ onToast }: { onToast: (m: string) => void }) {
 
 /** The dog at the centre of their own tracker: photo in a ring, name and age as stickers. */
 function Portrait({ c }: { c: Commission }) {
-  const front = c.refs.front?.src || c.refs.most?.src
+  const front = (c.photos.find((p) => p.angle === 'front') ?? c.photos[0])?.src
   const age = parseFloat(c.dog.age)
   const date = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' }).replace(',', ',\n')
   return (

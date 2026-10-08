@@ -33,14 +33,17 @@ The review screen pairs "your photo" with the sculpture at the same angle and sh
 **4. Revision rounds are visible before they're spent.**
 "This uses 1 of your 2 included rounds. 1 will be left." After that, the extra cost is stated before sending. No surprises at the end. Principles: trust, transparency.
 
-**5. Photos are taken one at a time.**
-Step 4 is a guided capture, not a grid of six slots. A single card asks for one angle ("Face, straight on"), with a dashed pose guide showing that angle, one tip and one primary button: **Take photo** (opens the rear camera on phones), with "or choose one you already have" as a quiet link. The other five wait in a filmstrip of small thumbnails above, which is the progress indicator and the way back to any photo. Six simultaneous demands become one.
-- **Result handling:** each photo is checked on the device (size, exposure, blur) under a visible 0.7s scan. A good photo shows "Good to use", then moves on to the next missing angle by itself. A problem keeps you there, with **Retake** as the primary and "Use it anyway" as the secondary (a warning never blocks), and marks the thumbnail with an amber "!".
-- **Optional and skipped photos:** the three needed photos come first. Optional ones can be skipped one by one or with "Skip the rest".
-- **One primary at a time:** the dock's Continue is hidden until the needed photos exist, and stays secondary ("Continue with these photos") while an optional photo is still being asked for.
-- **Continuity:** a thumbnail grows into the card and a finished photo shrinks back into its thumbnail (shared view-transition names `ph-<slot>`).
-- **Fits one screen:** the frame is 4:3 so "Take photo" sits above the fold on a 375×812 phone.
-Principles: cognitive load, focus, feedback, user control.
+**5. Photos: one gesture, not six photoshoots.**
+*History:* v1 was a six-slot grid, and v2 was a guided one-photo-at-a-time capture. The user's verdict on v2: *"I have to upload photos of my dead or dying dog six times."* The real cost wasn't taps. It was asking someone to stage six photoshoots of a dying animal, which is impossible if the dog has already died; then all they have is their camera roll.
+
+*Now:* "A few photos of Maple. Choose ones you already love. Any angle, any day. Ines will work out the rest, and only ask if she needs something more."
+- **Choose photos** opens the library with multi-select: one gesture, any number up to 12.
+- **Film a short video instead** is the gentle option for a dog who's resting: one slow ten-second pass. Five evenly spaced frames are pulled from it on the device (`src/lib/video.ts`).
+- **The sculptor sorts the angles, not the owner.** The requirement drops from three specific angles to *at least one photo*. The status line encourages ("Another from a different side helps, if you have one") but never demands.
+- **Optimistic and honest:** every chosen photo appears at once and is checked in turn under a scan line. Weak ones get an amber "!" and a reassuring line, and are never rejected. Any photo can be removed (×, with a 44px hit area).
+- **Review compare:** real photos have no angle label, so the "Your photo" pane flips through the owner's photos (1/3 ›) to find the closest match.
+- **Reliability:** adding and removing photos go through the reducer (`addPhoto` and `removePhoto`), so checks that finish out of order, or several quick removals, never overwrite each other.
+Principles: emotional cost as friction, invisible automation, cognitive load, user control.
 
 **6. Every step can wait.**
 The draft autosaves, and "Save and finish later" is on every step. Delivery can be **held until the owner asks**, with no deadline (see 1b). Updates can be every step, approvals only, or off. The whole commission can be paused. Principles: user control, emotional context.

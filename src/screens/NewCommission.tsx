@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { Sculpture } from '../components/Sculpture'
 import { TopBar, go, transition, useTweened } from '../components/ui'
-import { PhotoCapture } from '../components/PhotoCapture'
+import { PhotoPicker } from '../components/PhotoPicker'
 import {
-  PIECES, SLOTS, allowedMaterials, describe, materialOf, money, pieceOf, priceOf, pron, urnSize, weeksFor,
+  PIECES, allowedMaterials, describe, materialOf, money, pieceOf, priceOf, pron, urnSize, weeksFor,
   type Draft, type Piece,
 } from '../lib/model'
 import { emptyDraft, useStore } from '../state/store'
@@ -26,18 +26,12 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
   // Move focus to the new step's heading so screen readers announce it.
   useEffect(() => heading.current?.focus(), [step])
 
-  const requiredMissing = SLOTS.filter((s) => s.required && !d.refs[s.id]?.src).length
   const blocker =
     step === 0 && !name ? 'Add their name to continue.' :
     null
   // On the photo step the capture card holds the one primary action; Continue appears once the needed photos exist.
-  const hideContinue = step === 3 && requiredMissing > 0
-  // While an optional photo is being asked for, the card's "Take photo" stays the one primary.
-  const [captureDone, setCaptureDone] = useState(false)
-  const quietContinue = step === 3 && !captureDone
-  // Photo checks resolve asynchronously, so write against the latest draft, not this render's.
-  const stateRef = useRef(state.draft)
-  stateRef.current = state.draft
+  const hideContinue = step === 3 && d.photos.length === 0
+
 
   const next = () => (step < 5 ? transition(() => set({ step: step + 1 })) : reserve())
   const back = () => (step > 0 ? transition(() => set({ step: step - 1 }), 'back') : go('/', 'back'))
@@ -144,10 +138,16 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           )}
 
           {step === 3 && (
-            <Step h={`Photos of ${nm}`} sub={`One at a time, on a day ${p.sub} ${d.dog.pronoun === 'they' ? 'are' : 'is'} comfortable. Three are needed; the rest help.`} headingRef={heading}>
-              <PhotoCapture name={nm} refs={d.refs} onFinished={setCaptureDone} onChange={(id, ref) => dispatch({ type: 'draft', draft: { ...(stateRef.current ?? d), refs: { ...(stateRef.current ?? d).refs, [id]: ref } } })} />
+            <Step h={`A few photos of ${nm}`} sub={`Choose ones you already love. Any angle, any day. Ines will work out the rest, and only ask if she needs something more.`} headingRef={heading}>
+              <PhotoPicker
+                name={nm}
+                resting={`${p.sub}${d.dog.pronoun === 'they' ? '’re' : '’s'} resting`}
+                photos={d.photos}
+                onAdd={(photo) => dispatch({ type: 'addPhoto', photo })}
+                onRemove={(id) => dispatch({ type: 'removePhoto', id })}
+              />
               <p className="caption" style={{ textAlign: 'center' }}>Photos stay on this device in the prototype. The checks run on your phone.</p>
-              {hideContinue && <button className="btn btn-quiet" style={{ alignSelf: 'center' }} onClick={later}>Save and finish later</button>}
+              {hideContinue && <div style={{ textAlign: 'center' }}><button className="btn btn-quiet" onClick={later}>Save and finish later</button></div>}
             </Step>
           )}
 
@@ -171,7 +171,7 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
                     <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>
                       {describe(d)}{d.piece === 'urn' ? ` · ${urnSize(d.weightLb).label.toLowerCase()} chamber` : ''}
                     </p>
-                    <p className="caption">{Object.values(d.refs).filter((r) => r?.src).length} photos · {d.notes.trim() ? 'notes added' : 'no notes yet'}</p>
+                    <p className="caption">{d.photos.length} photo{d.photos.length === 1 ? '' : 's'} · {d.notes.trim() ? 'notes added' : 'no notes yet'}</p>
                   </div>
                 </div>
                 <dl style={{ margin: 0, padding: '4px 16px' }}>
@@ -235,8 +235,8 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
             </div>
           )}
           <div className="actions">
-            <button className={`btn ${quietContinue ? 'btn-secondary' : 'btn-primary'} btn-block`} disabled={!!blocker} onClick={next}>
-              {quietContinue ? 'Continue with these photos' : step === 5 ? `Reserve with ${money(price.deposit)} deposit` : 'Continue'}
+            <button className="btn btn-primary btn-block" disabled={!!blocker} onClick={next}>
+              {step === 5 ? `Reserve with ${money(price.deposit)} deposit` : 'Continue'}
             </button>
             {step === 5
               ? <p className="caption" style={{ textAlign: 'center' }}>Prototype: no payment is taken.</p>

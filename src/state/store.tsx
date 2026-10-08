@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
-import { INCLUDED_ROUNDS, STAGES, type Commission, type Draft, type Feature, type Likeness, type Update } from '../lib/model'
+import { INCLUDED_ROUNDS, STAGES, type Commission, type Draft, type Feature, type Likeness, type Photo, type Update } from '../lib/model'
 
-const KEY = 'gba:v2' // v2: pieces (keychain/sculpture/urn) replaced placement + size
+const KEY = 'gba:v3' // v3: a list of photos replaced six named slots
 const DAY = 86_400_000
 
 interface State {
@@ -11,6 +11,9 @@ interface State {
 
 type Action =
   | { type: 'draft'; draft: Draft | null }
+  /** Photo checks resolve asynchronously and out of order, so they patch the latest draft. */
+  | { type: 'addPhoto'; photo: Photo }
+  | { type: 'removePhoto'; id: string }
   | { type: 'reserve' }
   | { type: 'demo' }
   | { type: 'reset' }
@@ -31,7 +34,7 @@ export function emptyDraft(): Draft {
     piece: 'keychain',
     material: 'silver',
     weightLb: '',
-    refs: {},
+    photos: [],
     notes: '',
     prefs: { updates: 'every', ifPasses: 'continue', delivery: 'ready' },
   }
@@ -73,7 +76,7 @@ function seedDemo(): Commission {
     piece: 'urn',
     material: 'bronze',
     weightLb: '72',
-    refs: { front: { src: 'demo', issues: [] }, left: { src: 'demo', issues: [] }, right: { src: 'demo', issues: [] }, most: { src: 'demo', issues: [] } },
+    photos: (['front', 'left', 'right', 'front'] as const).map((angle, i) => ({ id: `demo${i}`, src: 'demo', issues: [], angle })),
     notes: 'He tilts his head to the left when you say “walk”. His muzzle has gone grey this past year. His ears are soft and flop forward.',
     stage: 2,
     roundsUsed: 0,
@@ -96,6 +99,10 @@ function reduce(s: State, a: Action): State {
   switch (a.type) {
     case 'draft':
       return { ...s, draft: a.draft }
+    case 'addPhoto':
+      return s.draft ? { ...s, draft: { ...s.draft, photos: [...s.draft.photos, a.photo] } } : s
+    case 'removePhoto':
+      return s.draft ? { ...s, draft: { ...s.draft, photos: s.draft.photos.filter((p) => p.id !== a.id) } } : s
     case 'demo':
       return { ...s, commission: seedDemo() }
     case 'reset':

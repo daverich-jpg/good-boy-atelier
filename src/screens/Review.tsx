@@ -31,7 +31,11 @@ export function Review({ onToast }: { onToast: (m: string) => void }) {
   // Casting is the one step that can't be undone, so the clay asks for all three angles first.
   const allSeen = seen.size === VIEWS.length
   const canApprove = !clay || allSeen
-  const ref = c.refs[view]
+  // Demo photos know their angle; real ones don't, so the owner flips to the one that matches.
+  const [photoIdx, setPhotoIdx] = useState(0)
+  const matched = c.photos.find((ph) => ph.angle === view)
+  const ref = matched ?? c.photos[photoIdx % Math.max(1, c.photos.length)]
+  const canFlip = !matched && c.photos.length > 1
   const fb = c.feedback[c.feedback.length - 1]
   const lastFb = fb && fb.stage === c.stage ? fb : null
   // Press-and-hold before/after: the sculpture morphs back to the previous version and
@@ -83,13 +87,18 @@ export function Review({ onToast }: { onToast: (m: string) => void }) {
                     {ref?.src === 'demo' ? (
                       <Sculpture view={view} finish="fur" grey tilt softEyes backdrop plinth={false} title={`Photo of ${name}, ${view}`} />
                     ) : ref?.src ? (
-                      <img src={ref.src} alt={`Your photo of ${name}, ${view} side`} />
+                      <img src={ref.src} alt={`Your photo of ${name}`} />
                     ) : (
-                      <p className="caption" style={{ padding: 12, textAlign: 'center' }}>No {view} photo</p>
+                      <p className="caption" style={{ padding: 12, textAlign: 'center' }}>No photo</p>
                     )}
                   </div>
+                  {canFlip && (
+                    <button className="flip" onClick={() => setPhotoIdx((i) => (i + 1) % c.photos.length)} aria-label={`Show your next photo (${(photoIdx % c.photos.length) + 1} of ${c.photos.length})`}>
+                      <span className="num">{(photoIdx % c.photos.length) + 1}/{c.photos.length}</span> ›
+                    </button>
+                  )}
                 </div>
-                <figcaption>Your photo</figcaption>
+                <figcaption>{canFlip ? 'Your photos, tap › for the closest angle' : 'Your photo'}</figcaption>
               </figure>
               <figure>
                 <div className="pic likeness-well vt-likeness">
