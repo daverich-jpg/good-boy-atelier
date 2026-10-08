@@ -1,6 +1,6 @@
 # Good Boy Atelier: design rationale
 
-A speculative portfolio concept: a studio that sculpts your dog as a memorial, **commissioned while the dog is still alive**.
+A speculative portfolio concept: a studio that sculpts your dog into keepsakes (**a keychain to carry, a sculpture for home, or an urn**), **commissioned while the dog is still alive**.
 
 **Governing rule: the name smiles, the interface doesn't joke.** The brand is affectionate. The product is used during anticipatory grief, so the controls are plain, the language is direct, and nothing is rushed.
 
@@ -10,7 +10,7 @@ A speculative portfolio concept: a studio that sculpts your dog as a memorial, *
 
 | | |
 |---|---|
-| Known | 71M US households own a dog (APPA 2026). About 75% of pets are cremated rather than buried. Vet care is the biggest share of dog-owner spending. |
+| Known | 71M US households own a dog (APPA 2026). About 75% of pets are cremated rather than buried, which is why the urn is one of the three pieces. Vet care is the biggest share of dog-owner spending. |
 | Likely | Owners of senior or ill dogs have time to capture a likeness and commission without pressure. Vets are the natural referral channel. |
 | Unknown | Whether planning ahead feels caring or morbid. Willingness to pay. Whether phone photos give a convincing likeness. |
 
@@ -18,8 +18,11 @@ Proto-persona: **Linda, 61.** Her 13-year-old Lab, Bo, has kidney failure. She i
 
 ## Decision records
 
-**1. A memorial first, with the grave as one placement among several.**
-Most pets are cremated, so a grave-only product would exclude roughly three quarters of the market. Placement (grave, garden, home, holds the ashes) is the second question asked, and it limits which materials are offered: ceramic is disabled outdoors, with the reason given inline. If an earlier choice becomes invalid, it switches automatically and a toast explains why. Principles: mental models, error prevention.
+**1. Keepsakes, chosen as objects: a keychain, a sculpture or an urn.**
+The service makes memorabilia, not grave markers. The first real question is *"What would you like to keep of Maple?"*, answered with three cards that each show the actual form: a keychain (about 4 cm, the head on a keyring), a sculpture (about 25 cm, head and chest) or an urn (the likeness on a sealed vessel with a name plaque). People choose objects, not locations, so this matches their mental model. Each piece offers only the materials that suit it: the keychain is carried every day, so it comes in sterling silver or bronze only. If switching pieces makes the current material invalid, it changes automatically and a toast explains why. Only the urn asks for the dog's weight (progressive disclosure), because the ash chamber is sized at about 1 cubic inch per pound. "Not sure" is allowed: it's priced as large and confirmed before casting. Principles: mental models, progressive disclosure, error prevention.
+
+**1b. Delivery is a choice, and the default depends on the piece.**
+A keychain is wanted *now*, to carry while the dog is still here, so it defaults to "Send it to me". An urn defaults to "Keep it safe until I ask". The owner can change either at review or later in settings. Principles: user control, smart defaults.
 
 **2. The likeness is approved twice, and the second approval is harder.**
 A wrong likeness discovered after casting is the worst failure this product can have, and it can't be undone. Digital likeness: approve, or "Something isn't right". Clay maquette: approval stays disabled until all three angles have been viewed, and the confirmation states plainly that the shape becomes fixed and the deposit stops being refundable. This is **necessary friction**, placed only at the irreversible step. Principles: error prevention, friction, user control.
@@ -34,7 +37,7 @@ The review screen pairs "your photo" with the sculpture at the same angle and sh
 Each photo is checked for size, exposure and blur (variance of the Laplacian), and the result shows straight away under the slot. A warning never blocks: an imperfect photo of a dog who can't sit still may be the best there is. Only the first three angles are required, and the reason the button is disabled is always shown above it. Principles: feedback, user control.
 
 **6. Every step can wait.**
-The draft autosaves, and "Save and finish later" is on every step. Delivery is **held until the owner asks**, with no deadline, so nothing arrives while the dog is still alive. Updates can be every step, approvals only, or off. The whole commission can be paused. Principles: user control, emotional context.
+The draft autosaves, and "Save and finish later" is on every step. Delivery can be **held until the owner asks**, with no deadline (see 1b). Updates can be every step, approvals only, or off. The whole commission can be paused. Principles: user control, emotional context.
 
 **7. Decide in advance what happens if the dog dies first.**
 This is asked once, at reserve time, in plain words ("If Maple dies before it's finished"), and can be changed in settings. Euphemism here would make a consequential setting unclear. Principles: trust, comprehension.

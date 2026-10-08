@@ -94,7 +94,7 @@ export function Review({ onToast }: { onToast: (m: string) => void }) {
               <figure>
                 <div className="pic likeness-well vt-likeness">
                   <div key={view} className="turn">
-                    <Sculpture view={view} finish={stageFinish(c)} {...shown} title={`Sculpture of ${name}, ${view} view, version ${shown.version}`} />
+                    <Sculpture view={view} finish={stageFinish(c)} form={c.piece} name={name} {...shown} title={`Sculpture of ${name}, ${view} view, version ${shown.version}`} />
                   </div>
                   {holding && <span className="pic-tag pop">Version {shown.version}</span>}
                 </div>

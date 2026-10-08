@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState, type ReactNode } from 'react'
 import { INCLUDED_ROUNDS, STAGES, type Commission, type Draft, type Feature, type Likeness, type Update } from '../lib/model'
 
-const KEY = 'gba:v1'
+const KEY = 'gba:v2' // v2: pieces (keychain/sculpture/urn) replaced placement + size
 const DAY = 86_400_000
 
 interface State {
@@ -28,18 +28,18 @@ export function emptyDraft(): Draft {
   return {
     step: 0,
     dog: { name: '', pronoun: 'he', breed: '', age: '' },
-    placement: 'grave',
-    material: 'bronze',
-    size: 'medium',
+    piece: 'keychain',
+    material: 'silver',
+    weightLb: '',
     refs: {},
     notes: '',
-    prefs: { updates: 'every', ifPasses: 'continue' },
+    prefs: { updates: 'every', ifPasses: 'continue', delivery: 'ready' },
   }
 }
 
 const FIRST_LIKENESS: Likeness = { version: 1, earDrop: false, grey: false, tilt: false, softEyes: false }
 
-function stageUpdate(stage: number, name: string, at: number, l?: Likeness): Update {
+function stageUpdate(stage: number, name: string, at: number, l?: Likeness, hold = true): Update {
   const id = uid()
   switch (STAGES[stage].key) {
     case 'received':
@@ -57,7 +57,9 @@ function stageUpdate(stage: number, name: string, at: number, l?: Likeness): Upd
     case 'finish':
       return { id, at, stage, title: 'Finishing', body: 'Chasing, patina and sealing. The detail work.', image: 'finished' }
     default:
-      return { id, at, stage, title: `${name}’s sculpture is finished`, body: 'We’ll keep it safe here for as long as you need. Ask for delivery whenever you’re ready, there’s no deadline.', image: 'finished' }
+      return hold
+        ? { id, at, stage, title: `${name}’s piece is finished`, body: 'We’ll keep it safe here for as long as you need. Ask for it whenever you’re ready, there’s no deadline.', image: 'finished' }
+        : { id, at, stage, title: `${name}’s piece is on its way`, body: 'Finished and packed by hand. It should reach you in 3 to 5 days.', image: 'finished' }
   }
 }
 
@@ -68,9 +70,9 @@ function seedDemo(): Commission {
     id: 'demo',
     demo: true,
     dog: { name, pronoun: 'he', breed: 'Labrador', age: '13' },
-    placement: 'garden',
+    piece: 'urn',
     material: 'bronze',
-    size: 'medium',
+    weightLb: '72',
     refs: { front: { src: 'demo', issues: [] }, left: { src: 'demo', issues: [] }, right: { src: 'demo', issues: [] }, most: { src: 'demo', issues: [] } },
     notes: 'He tilts his head to the left when you say “walk”. His muzzle has gone grey this past year. His ears are soft and flop forward.',
     stage: 2,
@@ -83,7 +85,7 @@ function seedDemo(): Commission {
       stageUpdate(1, name, now - 6 * DAY),
       stageUpdate(0, name, now - 11 * DAY),
     ],
-    prefs: { updates: 'every', ifPasses: 'continue' },
+    prefs: { updates: 'every', ifPasses: 'continue', delivery: 'hold' },
     paused: false,
     createdAt: now - 11 * DAY,
   }
@@ -125,7 +127,7 @@ function reduce(s: State, a: Action): State {
     case 'advance': {
       if (!c || c.stage >= STAGES.length - 1) return s
       const stage = c.stage + 1
-      return { ...s, commission: { ...c, stage, revising: false, updates: [stageUpdate(stage, c.dog.name, Date.now(), c.likeness), ...c.updates] } }
+      return { ...s, commission: { ...c, stage, revising: false, updates: [stageUpdate(stage, c.dog.name, Date.now(), c.likeness, c.prefs.delivery === 'hold'), ...c.updates] } }
     }
     case 'requestChanges': {
       if (!c) return s

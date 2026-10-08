@@ -14,9 +14,9 @@ export function App() {
   const has = !!state.commission
 
   useEffect(() => {
-    const n = state.commission?.dog.name
-    document.title = n ? `${n}’s sculpture · Good Boy Atelier` : 'Good Boy Atelier'
-  }, [state.commission?.dog.name])
+    const c = state.commission
+    document.title = c ? `${c.dog.name}’s ${c.piece} · Good Boy Atelier` : 'Good Boy Atelier'
+  }, [state.commission])
 
   let screen
   if (route === '/new') screen = has ? <Redirect to="/home" /> : <NewCommission onToast={setToast} />

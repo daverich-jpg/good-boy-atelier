@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Sculpture } from '../components/Sculpture'
 import { Sheet, TopBar, go } from '../components/ui'
-import { SLOTS, money, priceOf, type IfPasses, type UpdatePref } from '../lib/model'
+import { SLOTS, money, priceOf, type Delivery, type IfPasses, type UpdatePref } from '../lib/model'
 import { useStore } from '../state/store'
 
 export function Settings({ onToast }: { onToast: (m: string) => void }) {
@@ -18,6 +18,7 @@ export function Settings({ onToast }: { onToast: (m: string) => void }) {
   )
   const setUpdates = (v: UpdatePref) => { dispatch({ type: 'prefs', prefs: { updates: v } }); onToast('Saved.') }
   const setIf = (v: IfPasses) => { dispatch({ type: 'prefs', prefs: { ifPasses: v } }); onToast('Saved.') }
+  const setDelivery = (v: Delivery) => { dispatch({ type: 'prefs', prefs: { delivery: v } }); onToast('Saved.') }
 
   return (
     <>
@@ -29,6 +30,12 @@ export function Settings({ onToast }: { onToast: (m: string) => void }) {
             {radio('up', 'every', c.prefs.updates, setUpdates, 'Every step', 'A short note and photo as each stage happens.')}
             {radio('up', 'approvals', c.prefs.updates, setUpdates, 'Only when I need to look', 'We’ll stay quiet unless something needs your approval.')}
             {radio('up', 'paused', c.prefs.updates, setUpdates, 'Not right now', 'No messages at all. The app still shows progress if you open it.')}
+          </fieldset>
+
+          <fieldset className="stack">
+            <legend><h2>When it’s finished</h2></legend>
+            {radio('deliv', 'ready', c.prefs.delivery, setDelivery, 'Send it to me', 'Usually 3 to 5 days after finishing.')}
+            {radio('deliv', 'hold', c.prefs.delivery, setDelivery, 'Keep it safe until I ask', 'We hold it for as long as you need. There’s no deadline.')}
           </fieldset>
 
           <fieldset className="stack">
@@ -125,7 +132,7 @@ export function Details({ onToast }: { onToast: (m: string) => void }) {
             <dl style={{ margin: 0 }}>
               <div className="kv"><dt>Total</dt><dd>{money(price.total)}</dd></div>
               <div className="kv"><dt>Deposit paid</dt><dd>{money(price.deposit)}</dd></div>
-              <div className="kv"><dt>Due on {c.placement === 'grave' ? 'installation' : 'delivery'}</dt><dd>{money(price.total - price.deposit)}</dd></div>
+              <div className="kv"><dt>Due when it’s sent</dt><dd>{money(price.total - price.deposit)}</dd></div>
               <div className="kv"><dt>Deposit refundable</dt><dd>{c.stage <= 3 ? 'Yes, until the clay is approved' : 'No, casting has begun'}</dd></div>
             </dl>
           </section>

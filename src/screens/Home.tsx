@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Sculpture, type Finish } from '../components/Sculpture'
 import { Icon, Sheet, TopBar, go, when } from '../components/ui'
-import { FEATURES, MATERIALS, PLACEMENTS, SIZES, STAGES, type Commission, type Update } from '../lib/model'
+import { FEATURES, STAGES, describe, type Commission, type Update } from '../lib/model'
 import { useStore } from '../state/store'
 
 export function stageFinish(c: Commission, stage = c.stage): Finish {
@@ -17,7 +17,7 @@ export function Home({ onToast }: { onToast: (m: string) => void }) {
   const stage = STAGES[c.stage]
   const [deliver, setDeliver] = useState(false)
   const lastFb = c.feedback[c.feedback.length - 1]
-  const delivery = c.placement === 'grave' ? 'installation' : 'delivery'
+  const hold = c.prefs.delivery === 'hold'
 
   // Remember what this screen last showed, so changes since then can be animated in:
   // newly completed steps draw their check, and a new likeness version announces itself.
@@ -37,7 +37,7 @@ export function Home({ onToast }: { onToast: (m: string) => void }) {
   // version lands the ears drop and the head tilts in place, instead of a card swap.
   const art = (
     <div className="stage-art vt-likeness" style={{ marginTop: 12 }}>
-      <Sculpture view="left" finish={stageFinish(c)} {...c.likeness} />
+      <Sculpture view="left" finish={stageFinish(c)} form={c.piece} name={name} {...c.likeness} />
       {c.revising && <div className="sculpting" aria-hidden="true" />}
     </div>
   )
@@ -52,9 +52,9 @@ export function Home({ onToast }: { onToast: (m: string) => void }) {
         <div className={`stack-lg${first ? ' reveal' : ''}`}>
           <Portrait c={c} />
           <div className="stack">
-            <h1>{name}’s sculpture</h1>
+            <h1>{name}’s {c.piece}</h1>
             <p className="muted" style={{ marginTop: 4 }}>
-              {MATERIALS.find((m) => m.id === c.material)!.label} {SIZES.find((s) => s.id === c.size)!.label.toLowerCase()} · {PLACEMENTS.find((p) => p.id === c.placement)!.label.toLowerCase()}
+              {describe(c)} · {hold ? 'held until you ask' : 'sent when it’s ready'}
             </p>
           </div>
 
@@ -91,10 +91,19 @@ export function Home({ onToast }: { onToast: (m: string) => void }) {
             ) : stage.key === 'held' ? (
               <>
                 <span className="badge badge-sage">Finished</span>
-                <div className="stage-art" style={{ marginTop: 12 }}><Sculpture view="left" finish={c.material} {...c.likeness} /></div>
-                <h2 id="now-h">Kept safe until you need it</h2>
-                <p className="muted">There’s no deadline. Ask for {delivery} when the time is right.</p>
-                <button className="btn btn-secondary btn-block" onClick={() => setDeliver(true)}>Arrange {delivery}</button>
+                <div className="stage-art" style={{ marginTop: 12 }}><Sculpture view="left" finish={c.material} form={c.piece} name={name} {...c.likeness} /></div>
+                {hold ? (
+                  <>
+                    <h2 id="now-h">Kept safe until you need it</h2>
+                    <p className="muted">There’s no deadline. Ask for it when the time is right.</p>
+                    <button className="btn btn-secondary btn-block" onClick={() => setDeliver(true)}>Ask for it to be sent</button>
+                  </>
+                ) : (
+                  <>
+                    <h2 id="now-h">On its way to you</h2>
+                    <p className="muted">Packed by hand. It should arrive in 3 to 5 days.</p>
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -147,7 +156,7 @@ export function Home({ onToast }: { onToast: (m: string) => void }) {
 
       <Sheet open={deliver} onClose={() => setDeliver(false)} labelledBy="dl-h">
         <div className="stack">
-          <h2 id="dl-h">Arrange {delivery}</h2>
+          <h2 id="dl-h">Send {name}’s {c.piece} to you?</h2>
           <p className="muted">We’ll message you to agree a day. If you’d rather we came at a quiet time, or left it with a neighbour, just say.</p>
           <div className="actions">
             <button className="btn btn-primary btn-block" onClick={() => { setDeliver(false); onToast('We’ll be in touch within a day to agree a time.') }}>Ask us to arrange it</button>
@@ -197,7 +206,7 @@ function UpdateRow({ u, c }: { u: Update; c: Commission }) {
     <li className="update">
       {u.image ? (
         <div className="art" aria-hidden="true">
-          <Sculpture view="left" finish={u.image === 'study' ? 'sketch' : stageFinish(c, u.stage)} plinth={false} {...(u.image === 'study' ? {} : c.likeness)} />
+          <Sculpture view="left" finish={u.image === 'study' ? 'sketch' : stageFinish(c, u.stage)} plinth={false} form={u.image === 'study' ? 'sculpture' : c.piece} {...(u.image === 'study' ? {} : c.likeness)} />
         </div>
       ) : (
         <div className="avatar" aria-hidden="true">I</div>

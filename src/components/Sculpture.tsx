@@ -3,6 +3,7 @@ import type { Material } from '../lib/model'
 
 export type View = 'front' | 'left' | 'right'
 export type Finish = Material | 'clay' | 'fur' | 'sketch'
+export type Form = 'sculpture' | 'keychain' | 'urn'
 
 interface Props {
   view?: View
@@ -14,6 +15,10 @@ interface Props {
   plinth?: boolean
   /** Background panel behind the bust (photo-style framing). */
   backdrop?: boolean
+  /** What the likeness is mounted as: on a plinth, on a keyring, or on an urn. */
+  form?: Form
+  /** Engraved on the urn's plaque. */
+  name?: string
   className?: string
   title?: string
 }
@@ -28,6 +33,7 @@ function Morph({ d, ...rest }: React.SVGProps<SVGPathElement> & { d: string }) {
 }
 
 const TONES: Record<Finish, [string, string, string, string]> = {
+  silver: ['#f6f8fa', '#bcc5cf', '#6f7a86', '#2b3138'],
   bronze: ['#d9a774', '#8f5a33', '#4a2c18', '#2a170c'],
   stone: ['#e7e3dc', '#b4ada3', '#7d766d', '#4c463f'],
   ceramic: ['#f6efe6', '#e0cfbd', '#b8a088', '#6a5646'],
@@ -40,7 +46,7 @@ const TONES: Record<Finish, [string, string, string, string]> = {
  * An illustrated bust of a Labrador. The same drawing is the dog's "photo" (finish="fur")
  * and every stage of the sculpture, so changes between likeness versions read clearly.
  */
-export function Sculpture({ view = 'left', finish = 'bronze', earDrop = true, grey = false, tilt = false, softEyes = false, plinth = true, backdrop = false, className, title }: Props) {
+export function Sculpture({ view = 'left', finish = 'bronze', earDrop = true, grey = false, tilt = false, softEyes = false, plinth = true, backdrop = false, form = 'sculpture', name, className, title }: Props) {
   const id = useId().replace(/:/g, '')
   const [lt, md, sh, ac] = TONES[finish]
   const sketch = finish === 'sketch'
@@ -78,8 +84,26 @@ export function Sculpture({ view = 'left', finish = 'bronze', earDrop = true, gr
 
       {backdrop && <rect width="240" height="260" fill={`url(#b${id})`} />}
 
+      {form === 'urn' && (
+        <g>
+          <path d="M50 176 H190 C204 176 210 190 208 210 L202 244 C200 252 194 256 186 256 H54 C46 256 40 252 38 244 L32 210 C30 190 36 176 50 176 Z" fill={fill} stroke={stroke} strokeWidth={sw} />
+          <path d="M34 192 H206" stroke={ac} strokeWidth="1.5" opacity="0.35" />
+          <rect x="82" y="212" width="76" height="24" rx="5" fill={sketch ? lt : '#f1e9dc'} opacity={sketch ? 1 : 0.9} stroke={sketch ? ac : 'none'} strokeWidth={sw} />
+          {name && <text x="120" y="229" textAnchor="middle" fontFamily="'Instrument Serif', serif" fontSize="15" fill="#3a2a1c">{name.length > 9 ? name.slice(0, 8) + '…' : name}</text>}
+        </g>
+      )}
+      {form === 'keychain' && (
+        <g fill="none" stroke={sketch ? ac : '#8d98a6'} strokeLinecap="round">
+          <circle cx="120" cy="24" r="17" strokeWidth="4" />
+          <path d="M120 41 V52" strokeWidth="3" />
+          <ellipse cx="120" cy="58" rx="4" ry="6" strokeWidth="3" />
+          <path d="M120 64 V92" strokeWidth="3" />
+        </g>
+      )}
+
       <g transform={mirror ? 'translate(240 0) scale(-1 1)' : undefined}>
-        {plinth && !backdrop && (
+      <g transform={form === 'urn' ? 'translate(21.6 0) scale(0.82)' : form === 'keychain' ? 'translate(24 38) scale(0.8)' : undefined}>
+        {form === 'sculpture' && plinth && !backdrop && (
           <g>
             <rect x="52" y="224" width="136" height="30" rx="3" fill={sketch ? lt : `url(#p${id})`} stroke={stroke} strokeWidth={sw} />
             <rect x="46" y="218" width="148" height="10" rx="2" fill={sketch ? lt : '#e4dcd2'} stroke={stroke} strokeWidth={sw} />
@@ -129,6 +153,7 @@ export function Sculpture({ view = 'left', finish = 'bronze', earDrop = true, gr
             </>
           )}
         </g>
+      </g>
       </g>
     </svg>
   )

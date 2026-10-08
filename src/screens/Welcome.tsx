@@ -32,14 +32,14 @@ export function Welcome() {
       <div className="stack-lg">
         <div className="stack">
           <h1 className="display">A sculpture of your dog, made while they’re <em>still beside you.</em></h1>
-          <p className="muted">Take the photos together, on a good day. We sculpt slowly, show you every step, and keep the finished piece safe until you need it.</p>
+          <p className="muted">A keychain to carry, a sculpture for home, or an urn to hold them. Take the photos together on a good day, and we’ll sculpt slowly and show you every step.</p>
         </div>
 
         <ol className="list card" style={{ padding: '4px 20px' }} aria-label="How it works">
           {[
             ['Photos, together', 'A short guided set, taken at home. About 15 minutes.'],
             ['You approve the likeness', 'Nothing is cast until you say it looks like them.'],
-            ['Kept until you’re ready', 'Delivery or installation only when you ask. No deadline.'],
+            ['Yours when you want it', 'A keychain to carry now, or an urn held safe until it’s needed.'],
           ].map(([t, d], i) => (
             <li key={t} className="row" style={{ padding: '14px 0', alignItems: 'flex-start' }}>
               <span className="serif num" style={{ fontSize: 26, width: 22, flex: 'none', lineHeight: 1 }}>{i + 1}</span>

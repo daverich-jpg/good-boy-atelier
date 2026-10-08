@@ -147,6 +147,11 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 }
 .choice input:checked + .face .dot { border-color: var(--primary); background: var(--primary); box-shadow: inset 0 0 0 4px var(--surface); }
 .choice .t { font-weight: 600; }
+/* Piece cards: a round sticker of the form itself, so the choice is seen, not imagined. */
+.choice .face.piece { align-items: center; gap: var(--s4); }
+.piece-art { flex: none; width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #fff, var(--tint)); display: grid; place-items: center; overflow: hidden; }
+.piece-art svg { width: 86%; }
+.choice input:checked + .face .piece-art { background: radial-gradient(circle at 50% 35%, #fff, #c3d8f6); }
 .choice .d { font-size: var(--t-sm); color: var(--ink-2); }
 .chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .chip .face { padding: var(--s2) var(--s4); border-radius: var(--r-pill); font-weight: 500; font-size: var(--t-sm); align-items: center; min-height: 44px; gap: 6px; }

@@ -3,12 +3,12 @@ import { Sculpture, type View } from '../components/Sculpture'
 import { Icon, TopBar, go, transition, useTweened } from '../components/ui'
 import { readPhoto } from '../lib/photo'
 import {
-  MATERIALS, PLACEMENTS, SIZES, SLOTS, allowedMaterials, money, priceOf, pron, weeksFor,
-  type Draft, type Placement, type SlotId,
+  PIECES, SLOTS, allowedMaterials, describe, materialOf, money, pieceOf, priceOf, pron, urnSize, weeksFor,
+  type Draft, type Piece, type SlotId,
 } from '../lib/model'
 import { emptyDraft, useStore } from '../state/store'
 
-const TITLES = ['Your dog', 'Where it will live', 'Size and material', 'Photos', 'What only you would notice', 'Review']
+const TITLES = ['Your dog', 'The keepsake', 'Material', 'Photos', 'What only you would notice', 'Review']
 
 export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
   const { state, dispatch, saved } = useStore()
@@ -85,13 +85,20 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           )}
 
           {step === 1 && (
-            <Step h={`Where will ${nm} live?`} sub="This decides which materials will last. You can change it until casting begins." headingRef={heading}>
+            <Step h={`What would you like to keep of ${nm}?`} sub="Each is sculpted from the same likeness. You can change your mind until casting begins." headingRef={heading}>
               <fieldset className="stack">
-                <legend className="sr">Placement</legend>
-                {PLACEMENTS.map((pl) => (
-                  <label key={pl.id} className="choice">
-                    <input type="radio" name="place" checked={d.placement === pl.id} onChange={() => choosePlacement(pl.id)} />
-                    <span className="face"><span className="dot" /><span><span className="t">{pl.label}</span><br /><span className="d">{pl.detail}</span></span></span>
+                <legend className="sr">Keepsake</legend>
+                {PIECES.map((pc) => (
+                  <label key={pc.id} className="choice">
+                    <input type="radio" name="piece" checked={d.piece === pc.id} onChange={() => choosePiece(pc.id)} />
+                    <span className="face piece">
+                      <span className="piece-art" aria-hidden="true"><Sculpture view="left" finish={pc.materials[0]} form={pc.id} name={name} /></span>
+                      <span>
+                        <span className="t">{pc.label}</span><br />
+                        <span className="d">{pc.detail}</span><br />
+                        <span className="caption num">From {money(Math.min(...pc.materials.map((m) => priceOf({ piece: pc.id, material: m, weightLb: '1' }).total)))}</span>
+                      </span>
+                    </span>
                   </label>
                 ))}
               </fieldset>
@@ -99,35 +106,32 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           )}
 
           {step === 2 && (
-            <Step h="Size and material" headingRef={heading}>
+            <Step h={d.piece === 'urn' ? 'Material and size' : 'Material'} headingRef={heading}>
               <div className="stage-art" aria-hidden="true">
-                <Sculpture view="left" finish={d.material} />
+                <Sculpture view="left" finish={d.material} form={d.piece} name={name} />
               </div>
               <fieldset>
                 <legend className="legend">Material</legend>
                 <div className="stack" style={{ marginTop: 8 }}>
-                  {MATERIALS.map((m) => {
-                    const ok = allowedMaterials(d.placement).some((a) => a.id === m.id)
-                    return (
-                      <label key={m.id} className="choice">
-                        <input type="radio" name="mat" disabled={!ok} checked={d.material === m.id} onChange={() => set({ material: m.id })} />
-                        <span className="face"><span className="dot" /><span><span className="t">{m.label}</span><br /><span className="d">{ok ? m.detail : 'Not suitable outdoors.'}</span></span></span>
-                      </label>
-                    )
-                  })}
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend className="legend">Size</legend>
-                <div className="seg" style={{ marginTop: 8 }}>
-                  {SIZES.map((s) => (
-                    <label key={s.id} className="choice">
-                      <input type="radio" name="size" checked={d.size === s.id} onChange={() => set({ size: s.id })} />
-                      <span className="face center" style={{ flexDirection: 'column', gap: 2 }}><span className="t">{s.label}</span><span className="d" style={{ fontSize: 13 }}>{s.detail}</span></span>
+                  {allowedMaterials(d.piece).map((m) => (
+                    <label key={m.id} className="choice">
+                      <input type="radio" name="mat" checked={d.material === m.id} onChange={() => set({ material: m.id })} />
+                      <span className="face"><span className="dot" /><span><span className="t">{m.label}</span><br /><span className="d">{m.detail}</span></span></span>
                     </label>
                   ))}
                 </div>
               </fieldset>
+              {d.piece === 'urn' && (
+                <div className="field">
+                  <label htmlFor="weight">{name ? `${name}’s` : 'Their'} weight, roughly <span className="muted" style={{ fontWeight: 400 }}>(lb)</span></label>
+                  <input id="weight" className="input num" inputMode="decimal" value={d.weightLb} placeholder="Not sure? Leave it blank" onChange={(e) => set({ weightLb: e.target.value.replace(/[^0-9.]/g, '').slice(0, 5) })} aria-describedby="weight-hint" />
+                  <span className="hint" id="weight-hint" aria-live="polite">
+                    {urnSize(d.weightLb).sure
+                      ? `${urnSize(d.weightLb).label} chamber, holds up to ${urnSize(d.weightLb).capacity} cubic inches.${urnSize(d.weightLb).extra ? ` Adds ${money(urnSize(d.weightLb).extra)}.` : ''}`
+                      : 'We’ll price it as large and confirm with you before casting. Ashes take about one cubic inch per pound.'}
+                  </span>
+                </div>
+              )}
             </Step>
           )}
 
@@ -156,21 +160,21 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
             <Step h="Before you reserve" headingRef={heading}>
               <div className="card card-flush">
                 <div className="row" style={{ padding: 16, gap: 16, borderBottom: '1px solid var(--line)' }}>
-                  <div style={{ width: 72, flex: 'none', background: 'var(--sunk)', borderRadius: 10 }}><Sculpture view="left" finish={d.material} /></div>
+                  <div style={{ width: 72, flex: 'none', background: 'var(--tint)', borderRadius: 12 }}><Sculpture view="left" finish={d.material} form={d.piece} name={name} /></div>
                   <div>
                     <p style={{ fontWeight: 600 }}>{nm}</p>
                     <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>
-                      {MATERIALS.find((m) => m.id === d.material)!.label} {SIZES.find((s) => s.id === d.size)!.label.toLowerCase()} · {PLACEMENTS.find((x) => x.id === d.placement)!.label.toLowerCase()}
+                      {describe(d)}{d.piece === 'urn' ? ` · ${urnSize(d.weightLb).label.toLowerCase()} chamber` : ''}
                     </p>
                     <p className="caption">{Object.values(d.refs).filter((r) => r?.src).length} photos · {d.notes.trim() ? 'notes added' : 'no notes yet'}</p>
                   </div>
                 </div>
                 <dl style={{ margin: 0, padding: '4px 16px' }}>
-                  <div className="kv"><dt>Sculpture</dt><dd>{money(price.sculpture)}</dd></div>
-                  {price.install > 0 && <div className="kv"><dt>Installation at the grave</dt><dd>{money(price.install)}</dd></div>}
+                  <div className="kv"><dt>{pieceOf(d.piece).label}</dt><dd>{money(price.sculpture)}</dd></div>
+                  {price.chamber > 0 && <div className="kv"><dt>{urnSize(d.weightLb).label} ash chamber</dt><dd>{money(price.chamber)}</dd></div>}
                   <div className="kv" style={{ borderTop: '1px solid var(--line)' }}><dt style={{ color: 'var(--ink)', fontWeight: 600 }}>Total</dt><dd className="total">{money(price.total)}</dd></div>
                   <div className="kv"><dt>Due today, as a deposit</dt><dd>{money(price.deposit)}</dd></div>
-                  <div className="kv"><dt>Making time</dt><dd>{weeksFor(d.material)}</dd></div>
+                  <div className="kv"><dt>Making time</dt><dd>{weeksFor(d)}</dd></div>
                 </dl>
               </div>
 
@@ -178,11 +182,25 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
                 {[
                   ['Nothing is cast until you approve', 'You’ll check a digital likeness and a clay maquette. Two rounds of changes are included.'],
                   ['Change your mind', 'Your full deposit is refunded until you approve the clay.'],
-                  ['Kept safe until you ask', `The finished piece stays with us until you request ${d.placement === 'grave' ? 'installation' : 'delivery'}. There’s no deadline.`],
                 ].map(([t, b]) => (
                   <li key={t} style={{ padding: '14px 0' }}><p style={{ fontWeight: 600 }}>{t}</p><p className="muted" style={{ fontSize: 'var(--t-sm)' }}>{b}</p></li>
                 ))}
               </ul>
+
+              <fieldset>
+                <legend className="legend">When it’s finished</legend>
+                <div className="stack" style={{ marginTop: 8 }}>
+                  {([
+                    ['ready', 'Send it to me', 'Usually 3 to 5 days after finishing.'],
+                    ['hold', 'Keep it safe until I ask', 'We hold it for as long as you need. There’s no deadline.'],
+                  ] as const).map(([v, t, b]) => (
+                    <label key={v} className="choice">
+                      <input type="radio" name="deliv" checked={d.prefs.delivery === v} onChange={() => set({ prefs: { ...d.prefs, delivery: v } })} />
+                      <span className="face"><span className="dot" /><span><span className="t">{t}</span><br /><span className="d">{b}</span></span></span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
 
               <fieldset>
                 <legend className="legend">If {nm} dies before it’s finished</legend>
@@ -207,7 +225,7 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           {blocker && <p className="caption" role="status" style={{ textAlign: 'center', marginBottom: 8 }}>{blocker}</p>}
           {step === 2 && (
             <div className="row between" aria-live="polite" style={{ marginBottom: 12 }}>
-              <span className="muted" style={{ fontSize: 'var(--t-sm)' }}>{SIZES.find((s) => s.id === d.size)!.label} in {MATERIALS.find((m) => m.id === d.material)!.label.toLowerCase()} · {weeksFor(d.material)}</span>
+              <span className="muted" style={{ fontSize: 'var(--t-sm)' }}>{describe(d)} · {weeksFor(d)}</span>
               <span className="total" style={{ fontVariantNumeric: 'tabular-nums' }}>{money(shownTotal)}</span>
             </div>
           )}
@@ -224,12 +242,15 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
     </>
   )
 
-  function choosePlacement(pl: Placement) {
-    const allowed = allowedMaterials(pl)
-    if (allowed.some((m) => m.id === d.material)) return set({ placement: pl })
-    set({ placement: pl, material: allowed[0].id })
-    onToast(`${MATERIALS.find((m) => m.id === d.material)!.label} can’t sit outdoors, so we’ve switched to ${allowed[0].label.toLowerCase()}.`)
+  function choosePiece(pc: Piece) {
+    const def = pieceOf(pc)
+    // Each piece has its own materials and a sensible delivery default: a keychain is
+    // wanted now, an urn is usually held until it's needed.
+    const material = def.materials.includes(d.material) ? d.material : def.materials[0]
+    set({ piece: pc, material, prefs: { ...d.prefs, delivery: def.delivery } })
+    if (material !== d.material) onToast(`${def.label}s come in ${def.materials.map((m) => materialOf(m).label.toLowerCase()).join(' or ')}, so we’ve picked ${materialOf(material).label.toLowerCase()}.`)
   }
+
 }
 
 function Step({ h, sub, children, headingRef }: { h: string; sub?: string; children: ReactNode; headingRef: React.RefObject<HTMLHeadingElement | null> }) {
