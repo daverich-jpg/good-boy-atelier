@@ -57,6 +57,9 @@ Home shows a single card for what, if anything, needs the owner: paused, Ines is
 **9. The reverse path is acknowledged, not ignored.**
 "My dog has already passed" is a quiet link on the welcome screen. It opens a sheet that is honest about the trade-off (slower, more questions) and offers to continue with existing photos.
 
+**10. The sculptor is introduced before she's mentioned by name.**
+Until step 6 the copy says "your sculptor". Before payment no one is assigned, and a bare first name ("Ines will work out the rest") left a user asking who Ines is. Step 6 introduces her in a short card (name, 14 years sculpting animals, "She'll make Maple's piece herself, from start to finish") placed directly above the choices that mention her. A named person matters for trust in a consequential, emotional purchase: a human, not a machine, is making your dog. After reserving, the first tracker update is "Meet Ines, your sculptor", and every update is signed "Ines, your sculptor". The name lives in one constant, `SCULPTOR` in `model.ts`. Principles: mental models, trust and transparency.
+
 ## Visual system: "an open sky"
 
 Rebranded 2026-10-08 from a reference the user supplied (a playful habit-tracker concept: sky-blue gradient, white sticker circles, navy ink, lime pill). The sky also suits a memorial: open, light, calm.

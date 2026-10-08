@@ -3,7 +3,7 @@ import { Sculpture } from '../components/Sculpture'
 import { TopBar, go, transition, useTweened } from '../components/ui'
 import { PhotoPicker } from '../components/PhotoPicker'
 import {
-  PIECES, allowedMaterials, describe, materialOf, money, pieceOf, priceOf, pron, urnSize, weeksFor,
+  PIECES, SCULPTOR, allowedMaterials, describe, materialOf, money, pieceOf, priceOf, pron, urnSize, weeksFor,
   type Draft, type Piece,
 } from '../lib/model'
 import { emptyDraft, useStore } from '../state/store'
@@ -138,7 +138,7 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           )}
 
           {step === 3 && (
-            <Step h={`A few photos of ${nm}`} sub={`Choose ones you already love. Any angle, any day. Ines will work out the rest, and only ask if she needs something more.`} headingRef={heading}>
+            <Step h={`A few photos of ${nm}`} sub={`Choose ones you already love. Any angle, any day. Your sculptor will work out the rest, and only ask if they need something more.`} headingRef={heading}>
               <PhotoPicker
                 name={nm}
                 resting={`${p.sub}${d.dog.pronoun === 'they' ? '’re' : '’s'} resting`}
@@ -183,6 +183,15 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
                 </dl>
               </div>
 
+              <section className="card sculptor" aria-labelledby="sc-h">
+                <span className="avatar" aria-hidden="true">{SCULPTOR.initial}</span>
+                <div>
+                  <p className="eyebrow">Your sculptor</p>
+                  <h3 id="sc-h">{SCULPTOR.full}</h3>
+                  <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>{SCULPTOR.bio} She’ll make {nm}’s piece herself, from start to finish.</p>
+                </div>
+              </section>
+
               <ul className="list card" style={{ padding: '4px 20px' }}>
                 {[
                   ['Nothing is cast until you approve', 'You’ll check a digital likeness and a clay maquette. Two rounds of changes are included.'],
@@ -211,7 +220,7 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
                 <legend className="legend">If {nm} dies before it’s finished</legend>
                 <div className="stack" style={{ marginTop: 8 }}>
                   {([
-                    ['continue', 'Keep going quietly', 'Ines carries on. We only contact you when you need to look at something.'],
+                    ['continue', 'Keep going quietly', `${SCULPTOR.name} carries on. We only contact you when you need to look at something.`],
                     ['pause', 'Pause everything', 'Nothing happens until you tell us you’re ready.'],
                   ] as const).map(([v, t, b]) => (
                     <label key={v} className="choice">

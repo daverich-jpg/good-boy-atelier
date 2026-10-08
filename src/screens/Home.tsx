@@ -214,7 +214,7 @@ function UpdateRow({ u, c }: { u: Update; c: Commission }) {
       <div>
         <p style={{ fontWeight: 600 }}>{u.title}</p>
         <p className="muted" style={{ fontSize: 'var(--t-sm)' }}>{u.body}</p>
-        <p className="caption" style={{ marginTop: 4 }}>Ines, sculptor · {when(u.at)}</p>
+        <p className="caption" style={{ marginTop: 4 }}>Ines, your sculptor · {when(u.at)}</p>
       </div>
     </li>
   )

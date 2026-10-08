@@ -68,6 +68,9 @@ export interface Commission {
 /** A commission in progress through the order flow (not yet reserved). */
 export type Draft = Omit<Commission, 'id' | 'stage' | 'roundsUsed' | 'likeness' | 'feedback' | 'revising' | 'updates' | 'paused' | 'createdAt' | 'demo'> & { step: number }
 
+/** One named sculptor makes each piece. Introduced at review (step 6), not before: until then she's "your sculptor". */
+export const SCULPTOR = { name: 'Ines', full: 'Ines Moreau', initial: 'I', bio: 'Has sculpted animals for 14 years.' }
+
 export const INCLUDED_ROUNDS = 2
 
 export const STAGES = [

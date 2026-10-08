@@ -117,9 +117,9 @@ export function PhotoPicker({ name, resting, photos, onAdd, onRemove }: { name: 
         {busy
           ? `Checking light and focus…`
           : photos.length >= 3
-            ? `${photos.length} photos. That’s plenty for Ines to work from.`
+            ? `${photos.length} photos. That’s plenty for your sculptor to work from.`
             : `${photos.length === 1 ? 'One photo is' : 'Two photos are'} enough to start. Another from a different side helps, if you have one.`}
-        {!busy && weak > 0 && ` ${weak === 1 ? 'One is' : `${weak} are`} a little dark or soft, which Ines can usually work with.`}
+        {!busy && weak > 0 && ` ${weak === 1 ? 'One is' : `${weak} are`} a little dark or soft, which your sculptor can usually work with.`}
       </p>
       {note && <p className="note note-amber" role="status">{note}</p>}
       {!busy && photos.length > 0 && photos.length < 3 && (

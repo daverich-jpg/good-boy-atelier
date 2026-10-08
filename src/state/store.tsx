@@ -46,7 +46,7 @@ function stageUpdate(stage: number, name: string, at: number, l?: Likeness, hold
   const id = uid()
   switch (STAGES[stage].key) {
     case 'received':
-      return { id, at, stage, title: 'We have everything we need', body: `Ines has your photos and notes. Nothing more is needed from you for now. Spend the time with ${name}.` }
+      return { id, at, stage, title: 'Meet Ines, your sculptor', body: `She has your photos and notes, and she’ll be the one making ${name}’s piece from start to finish. Nothing more is needed from you for now. Spend the time with ${name}.` }
     case 'study':
       return { id, at, stage, title: 'First study', body: `Ines has started blocking out ${name}’s head shape from the side photos. Next, she’ll build a digital likeness for you to check.`, image: 'study' }
     case 'likeness':
