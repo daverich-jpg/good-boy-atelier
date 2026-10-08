@@ -1,0 +1,80 @@
+/*
+ * Good Boy Atelier tokens. Brand: an open sky.
+ * Sky-blue gradient behind everything, white "sticker" surfaces, navy ink and navy
+ * primary actions. Lime is the one highlight (things that want your attention or a
+ * smile); mint marks finished, positive states. Nothing else is coloured.
+ */
+:root {
+  /* sky */
+  --sky-top: #9ec8f7;
+  --sky-mid: #c9e0fb;
+  --paper: #eef5ff; /* app background below the sky */
+  --surface: #ffffff;
+  --tint: #dbe9fc; /* quiet panels: notes, tracks, art wells */
+  --sunk: #e4effd;
+  --line: #cfe0f6;
+  --control: #7189ad; /* form borders, 3.3:1 on paper, 3.6:1 on white */
+
+  /* ink */
+  --ink: #0d2a5a; /* 14:1 on white */
+  --ink-2: #3d5780; /* secondary, 5.9:1 on tint */
+  --ink-3: #4d6890; /* captions, 4.9:1 on tint */
+
+  /* roles */
+  --primary: #123a7a; /* navy actions; white text 11:1 */
+  --primary-press: #0b2a5c;
+  --primary-wash: #d4e4fb;
+  --lime: #dbf27c; /* highlight; navy text 11:1 */
+  --lime-deep: #c4e24f;
+  --mint: #cfeecf; /* finished */
+  --done: #1d6a3c; /* green ink on mint 5.3:1 */
+  --amber-wash: #fbefd3;
+  --amber-ink: #7a5310;
+  --focus: #0a64e0;
+
+  --serif: 'Instrument Serif', 'Times New Roman', serif;
+  --sans: 'Geist', system-ui, -apple-system, sans-serif;
+
+  /* type: the serif is narrow, so display sizes run large */
+  --t-xs: 13px;
+  --t-sm: 15px;
+  --t-md: 17px; /* body: older users are the core segment */
+  --t-lg: 26px;
+  --t-xl: 36px;
+  --t-2xl: 46px;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+  --s10: 40px;
+  --s12: 48px;
+
+  /* radii are concentric: outer = inner + padding (card 28 = art 12 + 16) */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+  --pad-card: 16px;
+
+  --tap: 48px;
+  /* elevation by shadow, tinted with the ink so it reads as sky, not dirt */
+  --shadow-sm: 0 1px 2px rgb(13 42 90 / 0.06), 0 2px 6px -2px rgb(13 42 90 / 0.08);
+  --shadow: 0 1px 2px rgb(13 42 90 / 0.05), 0 10px 28px -14px rgb(13 42 90 / 0.22);
+  --shadow-lg: 0 2px 4px rgb(13 42 90 / 0.05), 0 24px 48px -20px rgb(13 42 90 / 0.3);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* Motion: things arrive quickly and settle; they leave faster than they came. */
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-ui: cubic-bezier(0.2, 0, 0, 1);
+  /* A heavily damped spring: one small overshoot, no wobble. Calm, not bouncy. */
+  --spring: linear(0, 0.21 6%, 0.68 16%, 0.97 26%, 1.04 33%, 1.03 42%, 1 56%, 1);
+  --t-exit: 160ms;
+  --t-enter: 280ms;
+  --t-morph: 420ms;
+}
