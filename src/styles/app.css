@@ -214,6 +214,55 @@ fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
 .slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .slot:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
 
+/* ---------- guided capture: one photo at a time ---------- */
+.capture { display: flex; flex-direction: column; gap: var(--s4); }
+.filmstrip { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s2); }
+.filmstrip .frame {
+  position: relative; width: 100%; aspect-ratio: 1; padding: 0; border: 0; cursor: pointer;
+  border-radius: var(--r-sm); overflow: hidden; background: var(--surface); box-shadow: var(--shadow-sm);
+  display: grid; place-items: center;
+  transition-property: scale, box-shadow; transition-duration: 150ms; transition-timing-function: var(--ease-ui);
+}
+.filmstrip .frame:active { scale: 0.96; }
+.filmstrip .frame > svg { width: 78%; opacity: 0.55; }
+.filmstrip .frame img { width: 100%; height: 100%; object-fit: cover; outline: 1px solid oklch(0 0 0 / 0.1); outline-offset: -1px; }
+.filmstrip .frame.skipped > svg { opacity: 0.25; }
+.filmstrip .frame.warn { box-shadow: inset 0 0 0 2px #c28a2c; }
+.filmstrip .frame.current { box-shadow: 0 0 0 2px var(--primary), var(--shadow-sm); }
+.filmstrip .frame.current > svg { opacity: 0.9; }
+.filmstrip .tick { position: absolute; right: 3px; bottom: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; }
+.filmstrip .tick svg { width: 12px; height: 12px; }
+.filmstrip .tick.alert { background: #e0a43a; color: #2b1d05; font-size: 12px; font-weight: 800; line-height: 1; }
+
+.shot { padding: var(--pad-card); }
+.shot-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s3); }
+.badge-quiet { background: var(--sunk); color: var(--ink-2); }
+/* card 28 = frame 12 + padding 16 */
+.shot-frame {
+  position: relative; aspect-ratio: 4 / 3; border-radius: var(--r-sm); overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 15%, #fff, var(--tint));
+  display: grid; place-items: center;
+}
+.shot-frame img { width: 100%; height: 100%; object-fit: cover; outline: 1px solid oklch(0 0 0 / 0.1); outline-offset: -1px; }
+.shot-frame > svg { width: 100%; height: 100%; }
+/* The pose guide: the angle drawn as a dashed viewfinder outline. */
+.guide { position: absolute; inset: 8% 24%; display: grid; place-items: center; border: 2px dashed color-mix(in oklab, var(--primary) 35%, transparent); border-radius: 50% 50% var(--r-sm) var(--r-sm); }
+.guide svg { width: 92%; }
+.verdict {
+  position: absolute; left: 50%; bottom: 12px; translate: -50% 0;
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--r-pill);
+  font-size: var(--t-sm); font-weight: 600; box-shadow: var(--shadow); white-space: nowrap;
+}
+.verdict.ok { background: var(--mint); color: var(--done); }
+.verdict.warn { background: var(--amber-wash); color: var(--amber-ink); }
+.v-tick svg { width: 16px; height: 16px; }
+.shot-tip.warn { color: var(--amber-ink); font-weight: 500; }
+.btn svg { width: 22px; height: 22px; }
+.done-frame { padding: var(--s3); place-items: stretch; }
+.done-grid { display: grid; grid-template-columns: repeat(3, 1fr); width: 78%; margin: auto; gap: var(--s2); align-content: center; }
+.done-grid > * { aspect-ratio: 1; border-radius: var(--r-xs); overflow: hidden; width: 100%; height: auto; object-fit: cover; }
+.done-grid > svg { background: #e9dcc8; }
+
 /* ---------- preview ---------- */
 /* Inside a card (radius 28, padding 16) the well is radius 12: concentric. */
 .stage-art { background: radial-gradient(120% 90% at 50% 15%, #fff, var(--tint)); border-radius: var(--r-lg); display: grid; place-items: center; padding: var(--s4) 0 var(--s2); position: relative; }

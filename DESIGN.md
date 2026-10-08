@@ -33,8 +33,14 @@ The review screen pairs "your photo" with the sculpture at the same angle and sh
 **4. Revision rounds are visible before they're spent.**
 "This uses 1 of your 2 included rounds. 1 will be left." After that, the extra cost is stated before sending. No surprises at the end. Principles: trust, transparency.
 
-**5. Photo checks run on the device and warn without blocking.**
-Each photo is checked for size, exposure and blur (variance of the Laplacian), and the result shows straight away under the slot. A warning never blocks: an imperfect photo of a dog who can't sit still may be the best there is. Only the first three angles are required, and the reason the button is disabled is always shown above it. Principles: feedback, user control.
+**5. Photos are taken one at a time.**
+Step 4 is a guided capture, not a grid of six slots. A single card asks for one angle ("Face, straight on"), with a dashed pose guide showing that angle, one tip and one primary button: **Take photo** (opens the rear camera on phones), with "or choose one you already have" as a quiet link. The other five wait in a filmstrip of small thumbnails above, which is the progress indicator and the way back to any photo. Six simultaneous demands become one.
+- **Result handling:** each photo is checked on the device (size, exposure, blur) under a visible 0.7s scan. A good photo shows "Good to use", then moves on to the next missing angle by itself. A problem keeps you there, with **Retake** as the primary and "Use it anyway" as the secondary (a warning never blocks), and marks the thumbnail with an amber "!".
+- **Optional and skipped photos:** the three needed photos come first. Optional ones can be skipped one by one or with "Skip the rest".
+- **One primary at a time:** the dock's Continue is hidden until the needed photos exist, and stays secondary ("Continue with these photos") while an optional photo is still being asked for.
+- **Continuity:** a thumbnail grows into the card and a finished photo shrinks back into its thumbnail (shared view-transition names `ph-<slot>`).
+- **Fits one screen:** the frame is 4:3 so "Take photo" sits above the fold on a 375×812 phone.
+Principles: cognitive load, focus, feedback, user control.
 
 **6. Every step can wait.**
 The draft autosaves, and "Save and finish later" is on every step. Delivery can be **held until the owner asks**, with no deadline (see 1b). Updates can be every step, approvals only, or off. The whole commission can be paused. Principles: user control, emotional context.

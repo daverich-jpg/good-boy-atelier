@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Sculpture, type View } from '../components/Sculpture'
-import { Icon, TopBar, go, transition, useTweened } from '../components/ui'
-import { readPhoto } from '../lib/photo'
+import { Sculpture } from '../components/Sculpture'
+import { TopBar, go, transition, useTweened } from '../components/ui'
+import { PhotoCapture } from '../components/PhotoCapture'
 import {
   PIECES, SLOTS, allowedMaterials, describe, materialOf, money, pieceOf, priceOf, pron, urnSize, weeksFor,
-  type Draft, type Piece, type SlotId,
+  type Draft, type Piece,
 } from '../lib/model'
 import { emptyDraft, useStore } from '../state/store'
 
@@ -29,7 +29,15 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
   const requiredMissing = SLOTS.filter((s) => s.required && !d.refs[s.id]?.src).length
   const blocker =
     step === 0 && !name ? 'Add their name to continue.' :
-    step === 3 && requiredMissing ? `Add ${requiredMissing} more of the first three photos to continue.` : null
+    null
+  // On the photo step the capture card holds the one primary action; Continue appears once the needed photos exist.
+  const hideContinue = step === 3 && requiredMissing > 0
+  // While an optional photo is being asked for, the card's "Take photo" stays the one primary.
+  const [captureDone, setCaptureDone] = useState(false)
+  const quietContinue = step === 3 && !captureDone
+  // Photo checks resolve asynchronously, so write against the latest draft, not this render's.
+  const stateRef = useRef(state.draft)
+  stateRef.current = state.draft
 
   const next = () => (step < 5 ? transition(() => set({ step: step + 1 })) : reserve())
   const back = () => (step > 0 ? transition(() => set({ step: step - 1 }), 'back') : go('/', 'back'))
@@ -136,13 +144,10 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           )}
 
           {step === 3 && (
-            <Step h={`Photos of ${nm}`} sub={`Three are needed, the rest help. Take them on a day ${p.sub} ${d.dog.pronoun === 'they' ? 'are' : 'is'} comfortable. There’s no rush.`} headingRef={heading}>
-              <div className="slots">
-                {SLOTS.map((s) => (
-                  <PhotoSlot key={s.id} id={s.id} draft={d} onChange={(ref) => set({ refs: { ...d.refs, [s.id]: ref } })} />
-                ))}
-              </div>
-              <p className="caption">Photos stay on this device in the prototype. The checks for light, blur and size run on your phone.</p>
+            <Step h={`Photos of ${nm}`} sub={`One at a time, on a day ${p.sub} ${d.dog.pronoun === 'they' ? 'are' : 'is'} comfortable. Three are needed; the rest help.`} headingRef={heading}>
+              <PhotoCapture name={nm} refs={d.refs} onFinished={setCaptureDone} onChange={(id, ref) => dispatch({ type: 'draft', draft: { ...(stateRef.current ?? d), refs: { ...(stateRef.current ?? d).refs, [id]: ref } } })} />
+              <p className="caption" style={{ textAlign: 'center' }}>Photos stay on this device in the prototype. The checks run on your phone.</p>
+              {hideContinue && <button className="btn btn-quiet" style={{ alignSelf: 'center' }} onClick={later}>Save and finish later</button>}
             </Step>
           )}
 
@@ -221,7 +226,7 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
           )}
         </div>
 
-        <div className="dock">
+        {!hideContinue && <div className="dock">
           {blocker && <p className="caption" role="status" style={{ textAlign: 'center', marginBottom: 8 }}>{blocker}</p>}
           {step === 2 && (
             <div className="row between" aria-live="polite" style={{ marginBottom: 12 }}>
@@ -230,14 +235,14 @@ export function NewCommission({ onToast }: { onToast: (m: string) => void }) {
             </div>
           )}
           <div className="actions">
-            <button className="btn btn-primary btn-block" disabled={!!blocker} onClick={next}>
-              {step === 5 ? `Reserve with ${money(price.deposit)} deposit` : 'Continue'}
+            <button className={`btn ${quietContinue ? 'btn-secondary' : 'btn-primary'} btn-block`} disabled={!!blocker} onClick={next}>
+              {quietContinue ? 'Continue with these photos' : step === 5 ? `Reserve with ${money(price.deposit)} deposit` : 'Continue'}
             </button>
             {step === 5
               ? <p className="caption" style={{ textAlign: 'center' }}>Prototype: no payment is taken.</p>
               : <button className="btn btn-quiet" onClick={later}>Save and finish later</button>}
           </div>
-        </div>
+        </div>}
       </main>
     </>
   )
@@ -262,60 +267,5 @@ function Step({ h, sub, children, headingRef }: { h: string; sub?: string; child
       </div>
       {children}
     </section>
-  )
-}
-
-const SLOT_VIEW: Partial<Record<SlotId, View>> = { front: 'front', left: 'left', right: 'right' }
-
-function PhotoSlot({ id, draft, onChange }: { id: SlotId; draft: Draft; onChange: (r: { src: string; issues: string[] }) => void }) {
-  const s = SLOTS.find((x) => x.id === id)!
-  const ref = draft.refs[id]
-  const [busy, setBusy] = useState(false)
-  // Optimistic preview: the chosen photo shows at once while the checks run.
-  const [preview, setPreview] = useState<string | null>(null)
-  const has = !!ref?.src
-  const warn = has && ref!.issues.length > 0
-  const failed = !has && !!ref?.issues.length
-
-  return (
-    <label className={`slot${has ? ' filled' : ''}${warn || failed ? ' warn' : ''}`}>
-      <div className="thumb">
-        {preview ? (
-          <img src={preview} alt="" />
-        ) : has ? (
-          ref!.src === 'demo' ? <Sculpture view={SLOT_VIEW[id] ?? 'left'} finish="fur" grey tilt softEyes backdrop plinth={false} /> : <img src={ref!.src} alt="" />
-        ) : (
-          <Sculpture view={SLOT_VIEW[id] ?? 'left'} finish="sketch" plinth={false} />
-        )}
-        {busy && <span className="scan" aria-hidden="true" />}
-      </div>
-      <span className="label">{s.label}{s.required && <span className="sr"> (required)</span>}{!s.required && <span className="caption" style={{ fontWeight: 400 }}> · optional</span>}</span>
-      <span key={busy ? 'busy' : ref?.src ? ref.src.length + ref.issues.join() : 'idle'} className={`state${has && !warn && !busy ? ' ok' : ''}${(warn || failed) && !busy ? ' warn' : ''}${!busy && ref ? ' pop' : ''}`} aria-live="polite">
-        {busy ? 'Checking light and focus…' : failed ? ref!.issues[0] : warn ? ref!.issues[0] + ' Tap to retake, or keep it.' : has ? <span className="row" style={{ gap: 4 }}><span style={{ width: 14, display: 'inline-block' }}>{Icon.check}</span>Good to use</span> : s.tip}
-      </span>
-      <input
-        type="file"
-        accept="image/*"
-        aria-label={`${has ? 'Replace' : 'Add'} photo: ${s.label}`}
-        onChange={async (e) => {
-          const f = e.target.files?.[0]
-          e.target.value = ''
-          if (!f) return
-          const url = URL.createObjectURL(f)
-          setPreview(url)
-          setBusy(true)
-          try {
-            // The check takes ~50ms. Holding the scan for a beat lets the owner see the
-            // photo was actually examined (labour illusion), so "Good to use" is believed.
-            const [r] = await Promise.all([readPhoto(f), new Promise((res) => setTimeout(res, 700))])
-            onChange(r)
-          } finally {
-            setBusy(false)
-            setPreview(null)
-            URL.revokeObjectURL(url)
-          }
-        }}
-      />
-    </label>
   )
 }
